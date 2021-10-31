@@ -133,3 +133,6 @@ dmypy.json
 
 # google creds
 creds.json
+
+# ignore deta creds and set up
+.deta
