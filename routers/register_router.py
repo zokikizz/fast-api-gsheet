@@ -1,13 +1,13 @@
 from fastapi import APIRouter, HTTPException
 from models.user_model import User
-from db.db import connection
+from get_db import get_db_connection
 
 import os
 import secrets
 from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from datetime import datetime
-from fastapi import BackgroundTasks
+from fastapi import BackgroundTasks, Depends
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
 router = APIRouter(
@@ -44,7 +44,7 @@ def send_email_background(background_tasks: BackgroundTasks, subject: str, email
 
 
 @router.post("/")
-def create_new_user(new_user: User, background_tasks: BackgroundTasks):
+def create_new_user(new_user: User, background_tasks: BackgroundTasks, connection=Depends(get_db_connection)):
 
     users = connection.fetch({"email": new_user.Email_Address}).items
 
