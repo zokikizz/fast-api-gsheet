@@ -9,6 +9,14 @@ services:
       - .:/app
     ports:
       - "8001:8001"
+    environment:
+      - DETA_PROJECT_KEY=a0jx91u9_pbXvFPrfA3JQKoQcXNRYswHLY384GUgc
+      - MAIL_USERNAME=8acab2b27c021c8457ee6a5cf70d028d
+      - MAIL_PASSWORD=64a3723f949f9a53607ebbbbc80d6241
+      - MAIL_SERVER=in-v3.mailjet.com
+      - MAIL_PORT=465
+      - MAIL_FROM=zoran.pecic95@gmail.com
+      - MAIN_TITLE=Register
 
 #  postgres:
 #    image: postfres:11
