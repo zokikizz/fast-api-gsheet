@@ -5,6 +5,10 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 
+class UserActivationPayload:
+    activation_token: str
+    email: str
+
 class User(BaseModel):
     new_data_trigger: Optional[str] = Field(None, alias='new data trigger')
     id: Optional[int] = None

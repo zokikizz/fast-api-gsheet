@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from models.user_model import User
+from models.user_model import User, UserActivationPayload
 from get_db import get_db_connection
 
 import os
@@ -11,7 +11,7 @@ from fastapi import BackgroundTasks, Depends
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
 router = APIRouter(
-    prefix='/api/register'
+    prefix='/api/'
 )
 
 conf = ConnectionConfig(
@@ -43,7 +43,7 @@ def send_email_background(background_tasks: BackgroundTasks, subject: str, email
     )
 
 
-@router.post("/")
+@router.post("register/")
 def create_new_user(new_user: User, background_tasks: BackgroundTasks, connection=Depends(get_db_connection)):
 
     users = connection.fetch({"email": new_user.Email_Address}).items
@@ -77,3 +77,23 @@ def create_new_user(new_user: User, background_tasks: BackgroundTasks, connectio
     )
 
     return JSONResponse(content=jsonable_encoder(user))
+
+
+
+@router.put("/activate")
+def activate_user(payload: UserActivationPayload, connection=Depends(get_db_connection)):
+    users = connection.fetch({"email": payload.email}).items
+
+    if len(users) == 0:
+        raise HTTPException(404, "User with email {} doesn't exist.".format(payload.email))
+
+    user = users[0]
+
+    # TODO: check if user.something is good notation or it should be user["something"] - possiable error
+    if user.activated:
+        raise HTTPException(400, "User is already activated. Please login.")
+
+    if user.activation_token != payload.activation_token:
+        raise HTTPException(400, "Activation code is not right.")
+
+    #  TODO: UPDATE user to be activated
