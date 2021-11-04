@@ -62,6 +62,8 @@ def create_new_user(new_user: User, background_tasks: BackgroundTasks):
         "created_at": datetime.now().strftime("%d/%m/%Y %H:%M:%S")
     }
 
+    connection.put(user)
+
     send_email_background(
         background_tasks=background_tasks,
         subject="Activate your account",
