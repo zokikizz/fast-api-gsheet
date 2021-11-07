@@ -11,7 +11,7 @@ from fastapi import BackgroundTasks, Depends
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
 router = APIRouter(
-    prefix='/api/'
+    prefix='/api'
 )
 
 conf = ConnectionConfig(
@@ -77,7 +77,6 @@ def create_new_user(new_user: User, background_tasks: BackgroundTasks, connectio
     )
 
     return JSONResponse(content=jsonable_encoder(user))
-
 
 
 @router.put("/activate")
