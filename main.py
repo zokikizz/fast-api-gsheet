@@ -3,13 +3,14 @@ from typing import Optional
 from fastapi import FastAPI, Request, Response
 
 # import database
-from routers import gsheet_router, register_router
+from routers import gsheet_router, register_router, auth_router
 from db.db import connection
 
 app = FastAPI()
 
 app.include_router(gsheet_router.router)
 app.include_router(register_router.router)
+app.include_router(auth_router.router)
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):

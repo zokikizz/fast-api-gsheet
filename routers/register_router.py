@@ -11,7 +11,7 @@ from fastapi import BackgroundTasks, Depends
 from fastapi_mail import FastMail, MessageSchema, ConnectionConfig
 
 router = APIRouter(
-    prefix='/api'
+    prefix='/api/v1'
 )
 
 conf = ConnectionConfig(
@@ -43,7 +43,7 @@ def send_email_background(background_tasks: BackgroundTasks, subject: str, email
     )
 
 
-@router.post("register/")
+@router.post("/register/")
 def create_new_user(new_user: User, background_tasks: BackgroundTasks, connection=Depends(get_db_connection)):
 
     users = connection.fetch({"email": new_user.Email_Address}).items
