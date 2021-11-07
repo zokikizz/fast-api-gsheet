@@ -1,10 +1,9 @@
 from typing import Optional
 import base64
-from passlib.context import CryptContext
+import os
 from datetime import datetime, timedelta
 
 import jwt
-# from jwt import PyJWTError
 
 from pydantic import BaseModel
 
@@ -20,9 +19,13 @@ from starlette.responses import RedirectResponse, Response
 from starlette.requests import Request
 
 
+from get_db import get_db_connection
+from util.password_context import pwd_context
+
+
 # to get a string like this run:
 # openssl rand -hex 32
-SECRET_KEY = "09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7"
+SECRET_KEY = os.getenv("SECRET_KEY", None)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -55,7 +58,7 @@ class User(BaseModel):
 
 
 class UserInDB(User):
-    hashed_password: str
+    password: str
 
 
 class OAuth2PasswordBearerCookie(OAuth2):
@@ -105,33 +108,9 @@ class OAuth2PasswordBearerCookie(OAuth2):
         return param
 
 
-# class BasicAuth(SecurityBase):
-#     def __init__(self, scheme_name: str = None, auto_error: bool = True):
-#         self.scheme_name = scheme_name or self.__class__.__name__
-#         self.auto_error = auto_error
-#
-#     async def __call__(self, request: Request) -> Optional[str]:
-#         authorization: str = request.headers.get("Authorization")
-#         scheme, param = get_authorization_scheme_param(authorization)
-#         if not authorization or scheme.lower() != "basic":
-#             if self.auto_error:
-#                 raise HTTPException(
-#                     status_code=HTTP_403_FORBIDDEN, detail="Not authenticated"
-#                 )
-#             else:
-#                 return None
-#         return param
-#
-#
-# basic_auth = BasicAuth(auto_error=False)
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
 oauth2_scheme = OAuth2PasswordBearerCookie(tokenUrl="/token")
 
-router = APIRouter(
-    prefix='/api/v1'
-)
+router = APIRouter()
 
 
 def verify_password(plain_password, hashed_password):
@@ -143,16 +122,24 @@ def get_password_hash(password):
 
 
 def get_user(db, username: str):
-    if username in db:
-        user_dict = db[username]
+
+    if '@' in username:
+        users_db_response = db.fetch({"email": username})
+    else:
+        users_db_response = db.fetch({"username": username})
+
+    user_entities = users_db_response.items
+
+    if len(user_entities) > 0:
+        user_dict = user_entities[0]
         return UserInDB(**user_dict)
 
 
-def authenticate_user(fake_db, username: str, password: str):
-    user = get_user(fake_db, username)
+def authenticate_user(db, username: str, password: str):
+    user = get_user(db, username)
     if not user:
         return False
-    if not verify_password(password, user.hashed_password):
+    if not verify_password(password, user.password):
         return False
     return user
 
@@ -168,19 +155,24 @@ def create_access_token(*, data: dict, expires_delta: timedelta = None):
     return encoded_jwt
 
 
-async def get_current_user(token: str = Depends(oauth2_scheme)):
+async def get_current_user(
+        token: str = Depends(oauth2_scheme),
+        connection=Depends(get_db_connection)
+):
     credentials_exception = HTTPException(
         status_code=HTTP_403_FORBIDDEN, detail="Could not validate credentials"
     )
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
+        print("1." , username)
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
+        print("2.", token_data)
     except Exception:
         raise credentials_exception
-    user = get_user(fake_users_db, username=token_data.username)
+    user = get_user(connection, username=token_data.username)
     if user is None:
         raise credentials_exception
     return user
@@ -198,8 +190,11 @@ async def homepage():
 
 
 @router.post("/token", response_model=Token)
-async def route_login_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
-    user = authenticate_user(fake_users_db, form_data.username, form_data.password)
+async def route_login_access_token(
+        form_data: OAuth2PasswordRequestForm = Depends(),
+        connection=Depends(get_db_connection)
+):
+    user = authenticate_user(connection, form_data.username, form_data.password)
     if not user:
         raise HTTPException(status_code=400, detail="Incorrect username or password")
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
@@ -211,52 +206,18 @@ async def route_login_access_token(form_data: OAuth2PasswordRequestForm = Depend
 
 @router.get("/logout")
 async def route_logout_and_remove_cookie():
+    # rethink do we need redirection (maybe because of react native)
     response = RedirectResponse(url="/")
     response.delete_cookie("Authorization", domain="localtest.me")
     return response
 
-
-# @router.get("/login_basic")
-# async def login_basic(auth: BasicAuth = Depends(basic_auth)):
-#     if not auth:
-#         response = Response(headers={"WWW-Authenticate": "Basic"}, status_code=401)
-#         return response
-#
-#     try:
-#         decoded = base64.b64decode(auth).decode("ascii")
-#         username, _, password = decoded.partition(":")
-#         user = authenticate_user(fake_users_db, username, password)
-#         if not user:
-#             raise HTTPException(status_code=400, detail="Incorrect email or password")
-#
-#         access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-#         access_token = create_access_token(
-#             data={"sub": username}, expires_delta=access_token_expires
-#         )
-#
-#         token = jsonable_encoder(access_token)
-#
-#         response = RedirectResponse(url="/docs")
-#         response.set_cookie(
-#             "Authorization",
-#             value=f"Bearer {token}",
-#             domain="localtest.me",
-#             httponly=True,
-#             max_age=1800,
-#             expires=1800,
-#         )
-#         return response
-#
-#     except:
-#         response = Response(headers={"WWW-Authenticate": "Basic"}, status_code=401)
-#         return response
-#
 
 @router.get("/users/me/", response_model=User)
 async def read_users_me(current_user: User = Depends(get_current_active_user)):
     return current_user
 
 
-@router.get("/users/me/items/")
-async def read_own_items(current_user: User = Depends(get_current_active_user)):
-    return [{"item_id": "Foo", "owner": current_user.username}]
+@router.get("/openapi.json")
+async def redirect():
+    response = RedirectResponse(url='/openapi.json')
+    return response

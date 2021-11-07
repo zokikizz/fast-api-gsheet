@@ -3,7 +3,7 @@ from fastapi import APIRouter
 from gsheet import read_all
 
 router = APIRouter(
-    prefix="/api/v1/gsheet"
+    prefix="/gsheet"
 )
 
 

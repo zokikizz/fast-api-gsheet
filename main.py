@@ -6,11 +6,15 @@ from fastapi import FastAPI, Request, Response
 from routers import gsheet_router, register_router, auth_router
 from db.db import connection
 
-app = FastAPI()
+app = FastAPI(root_path="/api/v1")
+# openapi_url="/docs",
 
-app.include_router(gsheet_router.router)
-app.include_router(register_router.router)
-app.include_router(auth_router.router)
+ROUTE_API_PREFIX = "/api/v1"
+
+app.include_router(gsheet_router.router, prefix=ROUTE_API_PREFIX)
+app.include_router(register_router.router, prefix=ROUTE_API_PREFIX)
+app.include_router(auth_router.router, prefix=ROUTE_API_PREFIX)
+
 
 @app.middleware("http")
 async def db_session_middleware(request: Request, call_next):

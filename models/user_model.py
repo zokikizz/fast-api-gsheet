@@ -6,7 +6,8 @@ from pydantic import BaseModel, Field
 
 
 class UserActivationPayload(BaseModel):
-    activation_token: Optional[str] = Field(None, alias='activation token')
+    activation_token: Optional[str] = Field(None, alias='activationToken')
+    password: Optional[str] = Field(None, alias='password')
     email: Optional[str] = Field(None, alias='email')
 
 
