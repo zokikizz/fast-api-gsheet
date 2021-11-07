@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from models.user_model import User, UserActivationPayload
+from models.user_model import GoogleSheetUser, UserActivationPayload
 from get_db import get_db_connection
 from util.password_context import pwd_context
 
@@ -43,7 +43,11 @@ def send_email_background(background_tasks: BackgroundTasks, subject: str, email
 
 
 @router.post("/register/")
-def create_new_user(new_user: User, background_tasks: BackgroundTasks, connection=Depends(get_db_connection)):
+def create_new_user(
+        new_user: GoogleSheetUser,
+        background_tasks: BackgroundTasks,
+        connection=Depends(get_db_connection)
+):
     users = connection.fetch({"email": new_user.Email_Address}).items
 
     if len(users) > 0:
