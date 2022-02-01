@@ -13,3 +13,8 @@ Bachelor thesis service for interacting with gsheets
 3. Create creadentials as json in `KEYS` tab 
 4. Download creds put in root of the project folder and name it `creds.json`
 5. Run `docker-compose up -d --build`
+
+## For deploy using [Deta](https://docs.deta.sh/docs/home/):
+
+### Note:
+1. Deta doesn't support deploying folders that are hiddden ( starts with dot ex. -> .foldername)

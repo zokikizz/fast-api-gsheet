@@ -20,7 +20,7 @@ from starlette.requests import Request
 
 
 from get_db import get_db_connection
-from util.password_context import pwd_context
+from utils.password_context import pwd_context
 
 
 # to get a string like this run:
@@ -29,7 +29,7 @@ SECRET_KEY = os.getenv("SECRET_KEY", None)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
-
+# TODO: Remove this fake static db
 fake_users_db = {
     "johndoe": {
         "username": "johndoe",

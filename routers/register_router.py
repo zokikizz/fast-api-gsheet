@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from models.user_model import GoogleSheetUser, UserActivationPayload
 from get_db import get_db_connection
-from util.password_context import pwd_context
+from utils.password_context import pwd_context
 
 import os
 import secrets
@@ -42,7 +42,7 @@ def send_email_background(background_tasks: BackgroundTasks, subject: str, email
     )
 
 
-@router.post("/register/")
+@router.post("/register")
 def create_new_user(
         new_user: GoogleSheetUser,
         background_tasks: BackgroundTasks,
@@ -52,11 +52,15 @@ def create_new_user(
 
     if len(users) > 0:
         # if there is user with same email just return user that already exist
-        raise HTTPException(409,
-                            "User with email {} already exist.".format(new_user.Email_Address))
+        raise HTTPException(
+            409,
+            "User with email {} already exist.".format(new_user.Email_Address)
+        )
 
+    # TODO: Add id
     user = {
         "email": new_user.Email_Address,
+        "id": new_user.id,
         "username": new_user.Email_Address.split("@")[0],
         "password": "",
         "activated": False,
@@ -100,7 +104,6 @@ def activate_user(payload: UserActivationPayload, connection=Depends(get_db_conn
         raise HTTPException(400, "Activation code is not right.")
 
     #  TODO: UPDATE user to be activated
-
     connection.update(
         {
             "activated": True,
@@ -108,4 +111,3 @@ def activate_user(payload: UserActivationPayload, connection=Depends(get_db_conn
         },
         user["key"]
     )
-

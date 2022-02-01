@@ -1,13 +1,18 @@
 from fastapi import APIRouter
 
-from gsheet import read_all
+from gsheet import get_list_of_clients
 
 router = APIRouter(
-    prefix="/gsheet"
+    prefix='/google-sheets'
 )
 
 
-@router.get("/read_all")
+@router.get('/clients')
 def read_all_data():
-    values = read_all()
+    values = get_list_of_clients()
     return {"values": values}
+
+
+@router.get('/training-list')
+def training_list():
+    return []
