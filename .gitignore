@@ -132,7 +132,7 @@ dmypy.json
 .idea
 
 # google creds
-creds.json
+config
 
 # ignore deta creds and set up
 .deta

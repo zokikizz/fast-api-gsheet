@@ -18,3 +18,14 @@ Bachelor thesis service for interacting with gsheets
 
 ### Note:
 1. Deta doesn't support deploying folders that are hiddden ( starts with dot ex. -> .foldername)
+
+
+## Environments:
+    DETA_PROJECT_KEY=<deta_project_id>
+    MAIL_USERNAME=<username>
+    MAIL_PASSWORD=<pass>
+    MAIL_SERVER=<server>
+    MAIL_PORT=<port>
+    MAIL_FROM=<email>
+    MAIN_TITLE=<title>
+    SECRET_KEY=<secret>
