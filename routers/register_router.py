@@ -60,6 +60,7 @@ def create_new_user(
     # TODO: Add id
     user = {
         "email": new_user.Email_Address,
+        "name": new_user.Ime_i_prezime,
         "id": new_user.id,
         "username": new_user.Email_Address.split("@")[0],
         "password": "",

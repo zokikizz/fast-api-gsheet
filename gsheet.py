@@ -15,22 +15,56 @@ def convert_to_json(header, array):
     return json
 
 
-def get_list_of_clients():
-    """ Get array of clients """
-    sheet = client.open("GeneratorTreninga")
-    values = sheet.values_get(range="GeneratorTreningaForma")["values"]
+def get_data_from_sheet(title, worksheet_title, validation_function=None, start_row=1):
+    """
+    :param title: title of google sheet document
+    :param worksheet_title: title of worksheet
+    :param validation_function: should be function that accepts only only one arg and should return boolean,
+        default there is no validation, use validation if you want to exclude some results
+    :param start_row: start row, default it start from second row (index 1)
+    :return: array of data serialized by custom serializer - convert_to_json function
+    """
+    sheet = client.open(title)
+    values = sheet.values_get(range=worksheet_title)["values"]
     header = values[0]
-    data = sheet.values_get(range="GeneratorTreningaForma")["values"][1:]
-
-    worksheet = sheet.get_worksheet(0)
-    cell = worksheet.find("s.vericaa@gmail.com")
-    # print('CELL:', cell, cell.row)
-    worksheet.get_values()
+    data = sheet.values_get(range=worksheet_title)["values"][start_row:]
 
     array = []
     for value in data:
-        json = convert_to_json(header, value)
-        array.append(json)
+        if validation_function is None or validation_function(value):
+            json = convert_to_json(header, value)
+            array.append(json)
 
     return array
 
+
+def get_list_of_clients():
+    """ Get array of clients """
+    return get_data_from_sheet(
+        title='GeneratorTreninga',
+        worksheet_title='GeneratorTreningaForma',
+    )
+
+
+def list_of_sheets():
+    return client.list_spreadsheet_files()
+
+
+def get_training_list(title):
+    worksheet = 'Treninzi'
+    start_row = 2
+    return get_data_from_sheet(
+        title=title,
+        worksheet_title=worksheet,
+        validation_function=lambda value: value[0] and len(value) > 3,
+        start_row=start_row
+    )
+
+
+def get_payment_list(title):
+    worksheet = 'Uplate po nedeljama'
+    return get_data_from_sheet(
+        title=title,
+        worksheet_title=worksheet,
+        validation_function=lambda value: len(value) > 0
+    )

@@ -53,7 +53,8 @@ class TokenData(BaseModel):
 class User(BaseModel):
     username: str
     email: str = None
-    full_name: str = None
+    id: int = None
+    name: str = None
     disabled: bool = None
 
 
