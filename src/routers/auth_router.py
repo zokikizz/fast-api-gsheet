@@ -163,11 +163,9 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
         username: str = payload.get("sub")
-        print("1." , username)
         if username is None:
             raise credentials_exception
         token_data = TokenData(username=username)
-        print("2.", token_data)
     except Exception:
         raise credentials_exception
     user = get_user(connection, username=token_data.username)
