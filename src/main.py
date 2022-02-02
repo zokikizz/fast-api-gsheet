@@ -1,10 +1,9 @@
-import sys
 from typing import Optional
 from fastapi import FastAPI, Request, Response
 
 # import database
-from routers import gsheet_router, register_router, auth_router
-from db.db import connection
+from src.routers import gsheet_router, register_router, auth_router
+from src.db.db import connection
 
 app = FastAPI(root_path="/api/v1")
 # openapi_url="/docs",

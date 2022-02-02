@@ -1,13 +1,17 @@
-from google_sheet_client_service import client
+from src.google_sheet_client_service import client
 
 
 def convert_to_json(header, array):
     json = {}
+    id: int = 0
 
     for i in range(len(header)):
         try:
-
-            json["{}".format(header[i]).strip()] = array[i]
+            if header[i]:
+                json["{}".format(header[i]).strip()] = array[i]
+            else:
+                json["empty_header_value-{}".format(id).strip()] = array[i]
+                id += 1
 
         except Exception as e:
             json["{}".format(header[i]).strip()] = ""

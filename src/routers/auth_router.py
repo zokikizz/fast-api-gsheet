@@ -1,5 +1,4 @@
 from typing import Optional
-import base64
 import os
 from datetime import datetime, timedelta
 
@@ -8,19 +7,17 @@ import jwt
 from pydantic import BaseModel
 
 from fastapi import Depends, HTTPException, APIRouter
-from fastapi.encoders import jsonable_encoder
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2
-from fastapi.security.base import SecurityBase
 from fastapi.security.utils import get_authorization_scheme_param
 from fastapi.openapi.models import OAuthFlows as OAuthFlowsModel
 
 from starlette.status import HTTP_403_FORBIDDEN
-from starlette.responses import RedirectResponse, Response
+from starlette.responses import RedirectResponse
 from starlette.requests import Request
 
 
-from get_db import get_db_connection
-from utils.password_context import pwd_context
+from src.get_db import get_db_connection
+from src.utils.password_context import pwd_context
 
 
 # to get a string like this run:

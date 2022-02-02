@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
-from models.user_model import GoogleSheetUser, UserActivationPayload
-from get_db import get_db_connection
-from utils.password_context import pwd_context
+from src.models.user_model import GoogleSheetUser, UserActivationPayload
+from src.get_db import get_db_connection
+from src.utils.password_context import pwd_context
 
 import os
 import secrets
@@ -23,7 +23,7 @@ conf = ConnectionConfig(
     MAIL_TLS=False,
     MAIL_SSL=True,
     USE_CREDENTIALS=True,
-    TEMPLATE_FOLDER='./templates/email'
+    TEMPLATE_FOLDER='./src/templates/email'
 )
 
 
