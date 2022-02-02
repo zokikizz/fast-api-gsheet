@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from gsheet import get_list_of_clients, list_of_sheets, get_training_list, get_payment_list
+from gsheet import get_list_of_clients, list_of_sheets, get_training_list, get_payment_list, get_meals_plan
 from routers.auth_router import User, get_current_active_user
 
 router = APIRouter(
@@ -22,6 +22,11 @@ def training_list(current_user: User = Depends(get_current_active_user)):
 @router.get('/payments')
 def payments(current_user: User = Depends(get_current_active_user)):
     return get_payment_list(title='{} {}'.format(current_user.id, current_user.name))
+
+
+@router.get('/meals-plan')
+def meal_plan(current_user: User = Depends(get_current_active_user)):
+    return get_meals_plan(title='{} {}'.format(current_user.id, current_user.name))
 
 
 @router.get('/sheets')

@@ -24,10 +24,16 @@ def get_data_from_sheet(title, worksheet_title, validation_function=None, start_
     :param start_row: start row, default it start from second row (index 1)
     :return: array of data serialized by custom serializer - convert_to_json function
     """
-    sheet = client.open(title)
-    values = sheet.values_get(range=worksheet_title)["values"]
-    header = values[0]
-    data = sheet.values_get(range=worksheet_title)["values"][start_row:]
+
+    try:
+        sheet = client.open(title)
+        values = sheet.values_get(range=worksheet_title)["values"]
+        header = values[0]
+        data = sheet.values_get(range=worksheet_title)["values"][start_row:]
+    except Exception as e:
+        raise Exception({
+            'message': 'Something went wrong while fetching data'
+        })
 
     array = []
     for value in data:
@@ -67,4 +73,13 @@ def get_payment_list(title):
         title=title,
         worksheet_title=worksheet,
         validation_function=lambda value: len(value) > 0
+    )
+
+
+def get_meals_plan(title):
+    worksheet = 'Plan ishrane'
+    return get_data_from_sheet(
+        title=title,
+        worksheet_title=worksheet,
+        validation_function=lambda value: len(value) > 0 and value[2]
     )
