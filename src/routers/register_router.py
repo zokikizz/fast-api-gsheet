@@ -112,3 +112,5 @@ def activate_user(payload: UserActivationPayload, connection=Depends(get_db_conn
         },
         user["key"]
     )
+
+    return JSONResponse(content=jsonable_encoder({"status": "ok"}))
