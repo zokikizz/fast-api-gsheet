@@ -2,7 +2,7 @@ from typing import Optional
 from fastapi import FastAPI, Request, Response
 
 # import database
-from src.routers import gsheet_router, register_router, auth_router
+from src.routers import gsheet_router, register_router, auth_router, health_check_router
 from src.db.db import connection
 
 app = FastAPI(root_path="/api/v1")
@@ -13,6 +13,7 @@ ROUTE_API_PREFIX = "/api/v1"
 app.include_router(gsheet_router.router, prefix=ROUTE_API_PREFIX)
 app.include_router(register_router.router, prefix=ROUTE_API_PREFIX)
 app.include_router(auth_router.router, prefix=ROUTE_API_PREFIX)
+app.include_router(health_check_router.router, prefix=ROUTE_API_PREFIX)
 
 
 @app.middleware("http")
