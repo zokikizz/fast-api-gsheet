@@ -1,8 +1,8 @@
 from src.google_sheet_client_service import client
 
 
-def convert_to_json(header, array):
-    json = {}
+def convert_to_json(header, array, row=1):
+    json = {'row': row}
     id: int = 0
 
     for i in range(len(header)):
@@ -40,10 +40,14 @@ def get_data_from_sheet(title, worksheet_title, validation_function=None, start_
         })
 
     array = []
+    index: int = start_row + 1
     for value in data:
         if validation_function is None or validation_function(value):
             json = convert_to_json(header, value)
+            # add row attribute for referencing in update for comment
+            json['row'] = index
             array.append(json)
+        index += 1
 
     return array
 
@@ -86,4 +90,27 @@ def get_meals_plan(title):
         title=title,
         worksheet_title=worksheet,
         validation_function=lambda value: len(value) > 0 and value[2]
+    )
+
+
+def update_data_in_sheet(title, worksheet_title, row=1, comment=''):
+    try:
+        sheet = client.open(title)
+        worksheet = sheet.worksheet(worksheet_title)
+        worksheet.update_cell(row, 7, comment)
+    except Exception as e:
+        raise Exception({
+            'message': 'Something went wrong while fetching data'
+        })
+
+    return {'message': 'Comment successfully updated.'}
+
+
+def update_comment_for_training(title, row, comment):
+    worksheet = 'Treninzi'
+    return update_data_in_sheet(
+        title=title,
+        worksheet_title=worksheet,
+        row=row,
+        comment=comment
     )
