@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from src.models.user_model import GoogleSheetUser, UserActivationPayload
+from src.models.user_model import GoogleSheetUser, UserActivationPayload, ActivationEmailBody
 from src.get_db import get_db_connection
 from src.utils.password_context import pwd_context
 
@@ -113,4 +113,33 @@ def activate_user(payload: UserActivationPayload, connection=Depends(get_db_conn
         user["key"]
     )
 
+    return JSONResponse(content=jsonable_encoder({"status": "ok"}))
+
+
+@router.put("/activation-email")
+def send_activation_email(
+        body: ActivationEmailBody,
+        background_tasks: BackgroundTasks,
+        connection=Depends(get_db_connection)
+):
+    print("TEST THISS")
+    users = connection.fetch({"email": body.email}).items
+    activation_token = ''.join([secrets.choice('1234567890') for i in range(6)])
+
+    if len(users) > 0:
+        usr = users[0]
+        usr['activation_token'] = activation_token
+        connection.put(usr)
+
+    send_email_background(
+        background_tasks=background_tasks,
+        subject="Activate your account",
+        email_to=body.email,
+        body={
+            "title": "Activate your account with following token",
+            "token": activation_token,
+            "paragraph": "Enter this token on first opening of the application to set up password for your account.",
+            "button": None
+        }
+    )
     return JSONResponse(content=jsonable_encoder({"status": "ok"}))

@@ -11,6 +11,10 @@ class UserActivationPayload(BaseModel):
     email: Optional[str] = Field(None, alias='email')
 
 
+class ActivationEmailBody(BaseModel):
+    email: str = Field(None, alias='email')
+
+
 class GoogleSheetUser(BaseModel):
     new_data_trigger: Optional[str] = Field(None, alias='new data trigger')
     id: Optional[int] = None
