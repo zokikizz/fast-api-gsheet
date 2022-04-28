@@ -24,7 +24,7 @@ from src.utils.password_context import pwd_context
 # openssl rand -hex 32
 SECRET_KEY = os.getenv("SECRET_KEY", None)
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 525600 # one year
 
 # TODO: Remove this fake static db
 fake_users_db = {
