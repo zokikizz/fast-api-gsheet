@@ -26,17 +26,6 @@ SECRET_KEY = os.getenv("SECRET_KEY", None)
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 525600 # one year
 
-# TODO: Remove this fake static db
-fake_users_db = {
-    "johndoe": {
-        "username": "johndoe",
-        "full_name": "John Doe",
-        "email": "johndoe@example.com",
-        "hashed_password": "$2b$12$offu8ebY64St/lQJLBr1gOsfK14VQ8GUtumAE5y6P0c7DdXWRDwS.",
-        "disabled": False,
-    }
-}
-
 
 class Token(BaseModel):
     access_token: str
